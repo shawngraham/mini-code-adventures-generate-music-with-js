@@ -12,10 +12,19 @@ var chordGrammar = tracery.createGrammar({
 });
 
 var rhythmGrammar = tracery.createGrammar({
-  'groove': ['x__x__x-','x--x__x-','x--x--x_'],
+  'groove': ['x__x__x-','x--x__x-','x--x--x_','x_x_x_--','xx-x-xx-','x_-x_-','x---'],
   'text':['#groove#'],
 });
 
+var melodyGrammar = tracery.createGrammar({
+  'sadNote': ['a','e','d'],
+  'happyNote': ['c','f','g'],
+  'sassyNote': ['b','g'],
+  'octave': ['3','4'],
+  'black': ['#',''],
+  'noteType': ['#sadNote##black##octave#','#happyNote##black##octave#','#sassyNote##black##octave#'],
+  'text':['#noteType#']
+})
 var getRandomText = function(grammar) {
   return grammar.flatten('#text#');
 }
@@ -35,10 +44,28 @@ console.log('chordList:',chordList);
 var rhythmList = getText(rhythmGrammar, 8);
 console.log('rhythmList:',rhythmList);
 
+var noteList = getText(melodyGrammar, 8);
+console.log('noteList:',noteList);
+
 const scribble = require('scribbletune');
-let chords = scribble.clip({
+let chords, melody, bass
+chords = scribble.clip({
     notes: chordList,
     pattern: rhythmList.join(''),
     sizzle: true
-});  
-scribble.midi(chords, 'random-music.mid');
+});
+scribble.midi(chords, 'chordline.mid');
+
+melody = scribble.clip({
+    notes: noteList,
+    pattern: rhythmList.join(''),
+    shuffle: true
+})
+scribble.midi(melody, 'melody.mid');
+
+bass = scribble.clip({
+    notes: chordList.slice(0, 3),
+    pattern: '--x-'.repeat(16),
+    shuffle: true
+});
+scribble.midi(bass, 'bass.mid');
